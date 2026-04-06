@@ -40,52 +40,52 @@ export const LogConversationModal: React.FC<LogConversationModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl"
+        className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl border border-slate-100 dark:border-slate-800 transition-colors"
       >
-        <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-6">Log Conversation</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-6">Log Conversation</h2>
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
               <input 
                 type="date" 
                 value={newConversationDate}
                 onChange={(e) => setNewConversationDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Time</label>
               <input 
                 type="time" 
                 value={newConversationTime}
                 onChange={(e) => setNewConversationTime(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
               />
             </div>
           </div>
 
           {/* Status Check Toggle */}
-          <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+          <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 dark:border-emerald-800 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-600 dark:text-emerald-400">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-emerald-900">Status Check</p>
-                <p className="text-xs text-emerald-700">Did you ask about new roles?</p>
+                <p className="text-sm font-bold text-emerald-900 dark:text-emerald-100">Status Check</p>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400">Did you ask about new roles?</p>
               </div>
             </div>
             <button 
               onClick={() => setIsNeedsCheck(!isNeedsCheck)}
               className={cn(
                 "w-12 h-6 rounded-full transition-all relative",
-                isNeedsCheck ? "bg-emerald-500" : "bg-slate-200"
+                isNeedsCheck ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-700"
               )}
             >
               <motion.div 
@@ -97,7 +97,7 @@ export const LogConversationModal: React.FC<LogConversationModalProps> = ({
 
           {/* Position Selector */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
               <Tag className="w-4 h-4" />
               Related Positions
             </label>
@@ -111,10 +111,10 @@ export const LogConversationModal: React.FC<LogConversationModalProps> = ({
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     key={id} 
-                    className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg text-xs font-semibold"
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 rounded-lg text-xs font-semibold transition-colors"
                   >
                     {pos.title}
-                    <button onClick={() => togglePositionSelection(id)} className="hover:text-indigo-800">
+                    <button onClick={() => togglePositionSelection(id)} className="hover:text-indigo-800 dark:hover:text-indigo-300">
                       <X className="w-3 h-3" />
                     </button>
                   </motion.span>
@@ -128,39 +128,39 @@ export const LogConversationModal: React.FC<LogConversationModalProps> = ({
                   <button
                     key={pos.id}
                     onClick={() => togglePositionSelection(pos.id)}
-                    className="px-2.5 py-1 bg-slate-50 text-slate-500 border border-slate-100 rounded-lg text-xs hover:bg-slate-100 transition-colors"
+                    className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700 rounded-lg text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
                     + {pos.title}
                   </button>
                 ))
               }
               {client?.positions.length === 0 && (
-                <p className="text-xs text-slate-400 italic">No positions to link.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic">No positions to link.</p>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Memo / Notes</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Memo / Notes</label>
             <textarea 
               autoFocus
               rows={4}
               value={newConversationMemo}
               onChange={(e) => setNewConversationMemo(e.target.value)}
               placeholder="What did you discuss?"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none transition-colors"
             />
           </div>
           <div className="flex gap-3 pt-4">
             <button 
               onClick={onClose}
-              className="flex-1 px-4 py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+              className="flex-1 px-4 py-3 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </button>
             <button 
               onClick={onAddConversation}
-              className="flex-1 px-4 py-3 rounded-xl font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+              className="flex-1 px-4 py-3 rounded-xl font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20"
             >
               Log Conversation
             </button>

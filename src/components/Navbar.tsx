@@ -16,14 +16,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   ] as const;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 z-50 flex items-center justify-around md:justify-center md:gap-12 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-3 z-50 flex items-center justify-around md:justify-center md:gap-12 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)] dark:shadow-none transition-colors duration-300">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           className={cn(
             "flex flex-col items-center gap-1 transition-all relative py-1",
-            activeTab === tab.id ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
+            activeTab === tab.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
           )}
         >
           <tab.icon className={cn("w-6 h-6", activeTab === tab.id ? "stroke-[2.5px]" : "stroke-[2px]")} />
@@ -31,7 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
           {activeTab === tab.id && (
             <motion.div 
               layoutId="activeTab"
-              className="absolute -top-3 left-0 right-0 h-1 bg-indigo-600 rounded-full"
+              className="absolute -top-3 left-0 right-0 h-1 bg-indigo-600 dark:bg-indigo-400 rounded-full"
             />
           )}
         </button>

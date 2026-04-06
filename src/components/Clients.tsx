@@ -41,13 +41,13 @@ export const Clients: React.FC<ClientsProps> = ({
     >
       {/* Search & Filters */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
         <input 
           type="text" 
           placeholder="Search clients or positions..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-900 dark:text-white transition-all shadow-sm"
         />
       </div>
 
@@ -71,12 +71,12 @@ export const Clients: React.FC<ClientsProps> = ({
         </AnimatePresence>
 
         {filteredClients.length === 0 && (
-          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
-              <Search className="w-8 h-8 text-slate-300" />
+          <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 transition-colors duration-300">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full mb-4">
+              <Search className="w-8 h-8 text-slate-300 dark:text-slate-600" />
             </div>
-            <h3 className="text-lg font-medium text-slate-900">No clients found</h3>
-            <p className="text-slate-500 max-w-xs mx-auto mt-1">Try adjusting your search or add a new client to get started.</p>
+            <h3 className="text-lg font-medium text-slate-900 dark:text-white">No clients found</h3>
+            <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1">Try adjusting your search or add a new client to get started.</p>
           </div>
         )}
       </div>

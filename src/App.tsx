@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { format, isSameWeek } from 'date-fns';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from './db';
 import { Client, Position, PositionState, Conversation } from './types';
 import { STORAGE_KEY } from './constants';
 import { Navbar } from './components/Navbar';
@@ -18,28 +20,40 @@ import { AddPositionModal } from './components/Modals/AddPositionModal';
 import { LogConversationModal } from './components/Modals/LogConversationModal';
 
 export default function App() {
-  const [clients, setClients] = useState<Client[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Migration: Ensure conversations array exists and positionIds/isNeedsCheck exists in conversations
-        return parsed.map((c: any) => ({
-          ...c,
-          conversations: (c.conversations || []).map((conv: any) => ({
-            ...conv,
-            positionIds: conv.positionIds || [],
-            isNeedsCheck: conv.isNeedsCheck || false
-          })),
-          positions: c.positions || []
-        }));
-      } catch (e) {
-        console.error('Failed to parse saved data', e);
-        return [];
+  const clients = useLiveQuery(() => db.clients.toArray()) || [];
+  
+  // --- Migration from localStorage ---
+  useEffect(() => {
+    const migrate = async () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const count = await db.clients.count();
+          if (count === 0 && parsed.length > 0) {
+            // Migration: Ensure conversations array exists and positionIds/isNeedsCheck exists in conversations
+            const migratedData = parsed.map((c: any) => ({
+              ...c,
+              conversations: (c.conversations || []).map((conv: any) => ({
+                ...conv,
+                positionIds: conv.positionIds || [],
+                isNeedsCheck: conv.isNeedsCheck || false
+              })),
+              positions: c.positions || []
+            }));
+            await db.clients.bulkAdd(migratedData);
+            console.log('Migrated data from localStorage to IndexedDB');
+            // Optional: Clear localStorage after successful migration
+            // localStorage.removeItem(STORAGE_KEY);
+          }
+        } catch (e) {
+          console.error('Failed to migrate saved data', e);
+        }
       }
-    }
-    return [];
-  });
+    };
+    migrate();
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -55,11 +69,6 @@ export default function App() {
   const [isNeedsCheck, setIsNeedsCheck] = useState(false);
   const [activeTab, setActiveTab] = useState<'metrics' | 'clients' | 'settings'>('clients');
 
-  // --- Persistence ---
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
-  }, [clients]);
-
   // --- Actions ---
   const toggleExpandClient = (id: string) => {
     const next = new Set(expandedClientIds);
@@ -68,7 +77,7 @@ export default function App() {
     setExpandedClientIds(next);
   };
 
-  const addClient = () => {
+  const addClient = async () => {
     if (!newClientName.trim()) return;
     const newClient: Client = {
       id: crypto.randomUUID(),
@@ -77,36 +86,42 @@ export default function App() {
       conversations: [],
       createdAt: new Date().toISOString(),
     };
-    setClients([newClient, ...clients]);
+    await db.clients.add(newClient);
     setNewClientName('');
     setIsAddClientOpen(false);
   };
 
-  const deleteClient = (id: string) => {
+  const deleteClient = async (id: string) => {
     if (confirm('Are you sure you want to delete this client?')) {
-      setClients(clients.filter(c => c.id !== id));
+      await db.clients.delete(id);
     }
   };
 
-  const addPosition = (clientId: string) => {
+  const addPosition = async (clientId: string) => {
     if (!newPositionTitle.trim()) return;
+    const client = await db.clients.get(clientId);
+    if (!client) return;
+
     const newPosition: Position = {
       id: crypto.randomUUID(),
       title: newPositionTitle,
       state: 'Lead',
       createdAt: new Date().toISOString(),
     };
-    setClients(clients.map(c => 
-      c.id === clientId 
-        ? { ...c, positions: [newPosition, ...c.positions] } 
-        : c
-    ));
+
+    await db.clients.update(clientId, {
+      positions: [newPosition, ...client.positions]
+    });
+
     setNewPositionTitle('');
     setSelectedClientId(null);
   };
 
-  const addConversation = (clientId: string) => {
+  const addConversation = async (clientId: string) => {
     if (!newConversationMemo.trim()) return;
+    const client = await db.clients.get(clientId);
+    if (!client) return;
+
     const dateObj = new Date(`${newConversationDate}T${newConversationTime}`);
     const newConversation: Conversation = {
       id: crypto.randomUUID(),
@@ -116,48 +131,45 @@ export default function App() {
       isNeedsCheck: isNeedsCheck,
       createdAt: new Date().toISOString(),
     };
-    setClients(clients.map(c => 
-      c.id === clientId 
-        ? { 
-            ...c, 
-            conversations: [newConversation, ...c.conversations],
-            lastContactedAt: newConversation.date
-          } 
-        : c
-    ));
+
+    await db.clients.update(clientId, {
+      conversations: [newConversation, ...client.conversations],
+      lastContactedAt: newConversation.date
+    });
+
     setNewConversationMemo('');
     setSelectedPositionIds([]);
     setIsNeedsCheck(false);
     setSelectedClientIdForConversation(null);
   };
 
-  const updatePositionState = (clientId: string, positionId: string, newState: PositionState) => {
-    setClients(clients.map(c => 
-      c.id === clientId 
-        ? { 
-            ...c, 
-            positions: c.positions.map(p => 
-              p.id === positionId ? { ...p, state: newState } : p
-            ) 
-          } 
-        : c
-    ));
+  const updatePositionState = async (clientId: string, positionId: string, newState: PositionState) => {
+    const client = await db.clients.get(clientId);
+    if (!client) return;
+
+    await db.clients.update(clientId, {
+      positions: client.positions.map(p => 
+        p.id === positionId ? { ...p, state: newState } : p
+      )
+    });
   };
 
-  const deletePosition = (clientId: string, positionId: string) => {
-    setClients(clients.map(c => 
-      c.id === clientId 
-        ? { ...c, positions: c.positions.filter(p => p.id !== positionId) } 
-        : c
-    ));
+  const deletePosition = async (clientId: string, positionId: string) => {
+    const client = await db.clients.get(clientId);
+    if (!client) return;
+
+    await db.clients.update(clientId, {
+      positions: client.positions.filter(p => p.id !== positionId)
+    });
   };
 
-  const deleteConversation = (clientId: string, conversationId: string) => {
-    setClients(clients.map(c => 
-      c.id === clientId 
-        ? { ...c, conversations: c.conversations.filter(conv => conv.id !== conversationId) } 
-        : c
-    ));
+  const deleteConversation = async (clientId: string, conversationId: string) => {
+    const client = await db.clients.get(clientId);
+    if (!client) return;
+
+    await db.clients.update(clientId, {
+      conversations: client.conversations.filter(conv => conv.id !== conversationId)
+    });
   };
 
   const togglePositionSelection = (posId: string) => {
