@@ -215,23 +215,22 @@ export default function App() {
       <div className="max-w-5xl mx-auto space-y-8">
         
         {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">PikoBD</h1>
-            <p className="text-slate-500 mt-1">Manage your pipeline and stay proactive.</p>
-          </div>
-          {activeTab === 'clients' && (
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setIsAddClientOpen(true)}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium transition-all shadow-sm shadow-indigo-200"
-              >
-                <Plus className="w-4 h-4" />
-                Add Client
-              </button>
+        {activeTab === 'clients' && (
+          <header className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900">My Clients</h1>
             </div>
-          )}
-        </header>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setIsAddClientOpen(true)}
+                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium transition-all shadow-sm shadow-indigo-200"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Client
+                </button>
+              </div>
+          </header>
+        )}
 
         <AnimatePresence mode="wait">
           {activeTab === 'metrics' && <Metrics stats={stats} />}
@@ -291,11 +290,6 @@ export default function App() {
           onAddConversation={() => selectedClientIdForConversation && addConversation(selectedClientIdForConversation)}
         />
       </AnimatePresence>
-
-      {/* Footer */}
-      <footer className="max-w-5xl mx-auto mt-12 pt-8 pb-32 border-t border-slate-200 text-center text-slate-400 text-sm">
-        <p>© 2026 PikoBD • Local Storage Mode</p>
-      </footer>
     </div>
   );
 }
